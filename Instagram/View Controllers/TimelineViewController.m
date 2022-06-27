@@ -9,10 +9,11 @@
 #import "Parse/Parse.h"
 #import "LoginViewController.h"
 #import "SceneDelegate.h"
+#import "Post.h"
 
 @interface TimelineViewController () <UITableViewDelegate, UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
-@property (weak, nonatomic) NSArray *posts;
+@property (strong, nonatomic) NSMutableArray *posts;
 
 @end
 
@@ -23,6 +24,8 @@
     // Do any additional setup after loading the view.
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
+    
+    [self getPosts];
 }
 
 - (IBAction)logoutBtn:(id)sender {
@@ -37,8 +40,40 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    //return 20;
     return self.posts.count;
 }
+
+- (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    UITableViewCell *post = [tableView dequeueReusableCellWithIdentifier:@"postCell" forIndexPath:indexPath];
+    
+    post = self.posts[indexPath.row];
+    
+    return post;
+}
+
+- (void)getPosts {
+    // Add code to be run periodically
+    PFQuery *postQuery = [Post query];
+    [postQuery orderByDescending:@"createdAt"];
+    [postQuery includeKey:@"author"];
+    postQuery.limit = 20;
+    
+    // fetch data asynchronously
+    [postQuery findObjectsInBackgroundWithBlock:^(NSArray<Post *> * _Nullable postsFound, NSError * _Nullable error) {
+        if (postsFound) {
+            // do something with the data fetched
+            self.posts = (NSMutableArray *)postsFound;
+            NSLog(@"%@", self.posts);
+            [self.tableView reloadData];
+        }
+        else {
+            // handle error
+            NSLog(@"%@", error.localizedDescription);
+        }
+    }];
+}
+
 
 /*
 #pragma mark - Navigation
