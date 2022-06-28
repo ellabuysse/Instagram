@@ -16,6 +16,8 @@
 @dynamic image;
 @dynamic likeCount;
 @dynamic commentCount;
+@dynamic favorited;
+@dynamic timestamp;
 
 + (nonnull NSString *)parseClassName {
     return @"Post";
@@ -24,6 +26,12 @@
 + (void) postUserImage: ( UIImage * _Nullable )image withCaption: ( NSString * _Nullable )caption withCompletion: (PFBooleanResultBlock  _Nullable)completion {
     
     Post *newPost = [Post new];
+    NSDate *currentDate = [NSDate date];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"MM/dd/YY HH:mm"];
+    NSString *dateString = [dateFormatter stringFromDate:currentDate];
+    
+    newPost.timestamp = dateString;
     newPost.image = [self getPFFileFromImage:image];
     newPost.author = [PFUser currentUser];
     newPost.caption = caption;

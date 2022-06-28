@@ -10,11 +10,12 @@
 #import "LoginViewController.h"
 #import "SceneDelegate.h"
 #import "Post.h"
+#import "PostCell.h"
 
 @interface TimelineViewController () <UITableViewDelegate, UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (strong, nonatomic) NSMutableArray *posts;
-
+@property (nonatomic, strong) UIRefreshControl *refreshControl;
 @end
 
 @implementation TimelineViewController
@@ -25,7 +26,13 @@
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     
+    self.refreshControl = [[UIRefreshControl alloc] init];
+    [self.refreshControl addTarget:self action:@selector(getPosts) forControlEvents:UIControlEventValueChanged];
+    [self.tableView insertSubview:self.refreshControl atIndex:0];
+    
+   //[NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(onTimer) userInfo:nil repeats:true];
     [self getPosts];
+    
 }
 
 - (IBAction)logoutBtn:(id)sender {
@@ -40,16 +47,36 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    //return 20;
     return self.posts.count;
 }
 
 - (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
-    UITableViewCell *post = [tableView dequeueReusableCellWithIdentifier:@"postCell" forIndexPath:indexPath];
+    PostCell *cell = [tableView dequeueReusableCellWithIdentifier:@"postCell" forIndexPath:indexPath];
+    Post *post = self.posts[indexPath.row];
+    PFUser *user = post[@"author"];
     
-    post = self.posts[indexPath.row];
+    if(user != nil){
+        cell.user.text = user.username;
+    }
+    cell.caption.text = post[@"caption"];
+    cell.likeCount.text = [[post[@"likeCount"] stringValue] stringByAppendingString:@" Likes"];
+    cell.timeStamp.text = post[@"timestamp"];
     
-    return post;
+    PFFileObject *postImage = post[@"image"];
+    cell.postImageFile = postImage;
+    [postImage getDataInBackgroundWithBlock:^(NSData *imageData, NSError *error){
+        if(!error){
+            cell.photoImageView.image = [UIImage imageWithData:imageData];
+        }
+    }];
+    
+    if(post.favorited) {
+        [cell.likeBtn setImage:[UIImage imageNamed:@"heart-fill"] forState:UIControlStateNormal];
+    } else {
+        [cell.likeBtn setImage:[UIImage imageNamed:@"heart"] forState:UIControlStateNormal];
+    }
+    
+    return cell;
 }
 
 - (void)getPosts {
@@ -57,6 +84,7 @@
     PFQuery *postQuery = [Post query];
     [postQuery orderByDescending:@"createdAt"];
     [postQuery includeKey:@"author"];
+    //[postQuery includeKey:@"caption"];
     postQuery.limit = 20;
     
     // fetch data asynchronously
@@ -66,6 +94,8 @@
             self.posts = (NSMutableArray *)postsFound;
             NSLog(@"%@", self.posts);
             [self.tableView reloadData];
+            [self.refreshControl endRefreshing];
+            
         }
         else {
             // handle error
@@ -73,7 +103,6 @@
         }
     }];
 }
-
 
 /*
 #pragma mark - Navigation
