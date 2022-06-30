@@ -12,6 +12,7 @@
 #import "Post.h"
 #import "PostCell.h"
 #import "Likes.h"
+#import "DetailsViewController.h"
 
 @interface TimelineViewController () <UITableViewDelegate, UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
@@ -118,14 +119,23 @@
 }
 
 
-/*
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    if ([[segue identifier] isEqualToString:@"detailsViewSegue"]) {
+        DetailsViewController *detailsController = [segue destinationViewController];
+    
+        UITableViewCell *tappedCell = sender;
+        NSIndexPath *indexPath = [self.tableView indexPathForCell:tappedCell];
+    
+        Post *post = self.posts[indexPath.row];
+        detailsController.post = post;
+    }
 }
-*/
+
 
 @end

@@ -17,6 +17,7 @@
 @property (strong, nonatomic) NSMutableArray *posts;
 @property (nonatomic, strong) UIRefreshControl *refreshControl;
 @property (weak, nonatomic) IBOutlet UIImageView *profileImage;
+@property (weak, nonatomic) IBOutlet UILabel *username;
 @property (strong, nonatomic) PFFileObject *imageFileProfile;
 @end
 
@@ -30,11 +31,13 @@
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     
-    //self.refreshControl = [[UIRefreshControl alloc] init];
-    //[self.refreshControl addTarget:self action:@selector(getPosts) forControlEvents:UIControlEventValueChanged];
-    //[self.tableView insertSubview:self.refreshControl atIndex:0];
+    self.refreshControl = [[UIRefreshControl alloc] init];
+    [self.refreshControl addTarget:self action:@selector(getPosts) forControlEvents:UIControlEventValueChanged];
+    [self.tableView insertSubview:self.refreshControl atIndex:0];
     
     PFUser *user = [PFUser currentUser];
+    self.username.text = user.username;
+    
     PFFileObject *userProfileImageFile = user[@"profileImage"];
         self.imageFileProfile = userProfileImageFile;
         [userProfileImageFile getDataInBackgroundWithBlock:^(NSData *imageData, NSError *error) {
@@ -60,11 +63,12 @@
     
     if(user != nil){
         cell.user.text = user.username;
+        cell.username.text = user.username;
     }
     cell.caption.text = post[@"caption"];
     cell.likeCount.text = [[post[@"likeCount"] stringValue] stringByAppendingString:@" Likes"];
     cell.timeStamp.text = post[@"timestamp"];
-    
+
     PFFileObject *postImage = post[@"image"];
     cell.postImageFile = postImage;
     [postImage getDataInBackgroundWithBlock:^(NSData *imageData, NSError *error){
@@ -119,6 +123,22 @@
             imagePickerVC.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
     }
 
+    [self presentViewController:imagePickerVC animated:YES completion:nil];
+}
+
+- (IBAction)chooseProfileImage:(id)sender {
+    UIImagePickerController *imagePickerVC = [UIImagePickerController new];
+    imagePickerVC.delegate = self;
+    imagePickerVC.allowsEditing = YES;
+
+    // The Xcode simulator does not support taking pictures, so let's first check that the camera is indeed supported on the device before trying to present it.
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
+            imagePickerVC.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    }
+    else {
+            NSLog(@"Photo library 🚫 available so we will use camera instead");
+            imagePickerVC.sourceType = UIImagePickerControllerSourceTypeCamera;
+    }
     [self presentViewController:imagePickerVC animated:YES completion:nil];
 }
 
