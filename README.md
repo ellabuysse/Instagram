@@ -46,9 +46,8 @@ Please list two areas of the assignment you'd like to **discuss further with you
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='Screen_Recording_2022-06-30_at_1_57_17_PM_AdobeExpress.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
-GIF created with [Kap](https://getkap.co/).
 
 ## Credits
 
@@ -59,10 +58,11 @@ List an 3rd party libraries, icons, graphics, or other assets you used in your a
 ## Notes
 
 Describe any challenges encountered while building the app.
+A had a problem where the array of posts was nil after fetching from the database. I figured out that I had to store it as a strong reference because the values weren't being retained. I was also challenged with figuring out the profile picture functionality. I decided to add an attribute to User so I could store the image in Parse and fetch it for posts on the Home Feed.
 
 ## License
 
-    Copyright [yyyy] [name of copyright owner]
+    Copyright [2022] [Ella Buysse]
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
