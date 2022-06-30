@@ -16,9 +16,10 @@
 @property (nonatomic, strong) PFFileObject *image;
 @property (nonatomic, strong) NSNumber *likeCount;
 @property (nonatomic, strong) NSNumber *commentCount;
-@property (nonatomic) BOOL favorited; // Configure favorite button
+@property (nonatomic) NSNumber *favorited; // Configure favorite button
 @property (nonatomic) NSString *timestamp;
 
 + (void) postUserImage: ( UIImage * _Nullable )image withCaption: ( NSString * _Nullable )caption withCompletion: (PFBooleanResultBlock  _Nullable)completion;
+
 
 @end

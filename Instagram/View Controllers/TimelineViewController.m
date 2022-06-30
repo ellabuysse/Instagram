@@ -11,6 +11,7 @@
 #import "SceneDelegate.h"
 #import "Post.h"
 #import "PostCell.h"
+#import "Likes.h"
 
 @interface TimelineViewController () <UITableViewDelegate, UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
@@ -53,15 +54,25 @@
 - (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     PostCell *cell = [tableView dequeueReusableCellWithIdentifier:@"postCell" forIndexPath:indexPath];
     Post *post = self.posts[indexPath.row];
+    cell.post = post;
     PFUser *user = post[@"author"];
     
     if(user != nil){
         cell.user.text = user.username;
+        cell.username.text = user.username;
     }
     cell.caption.text = post[@"caption"];
     cell.likeCount.text = [[post[@"likeCount"] stringValue] stringByAppendingString:@" Likes"];
     cell.timeStamp.text = post[@"timestamp"];
     
+    PFFileObject *userProfileImageFile = user[@"profileImage"];
+        cell.imageFileProfile = userProfileImageFile;
+        [userProfileImageFile getDataInBackgroundWithBlock:^(NSData *imageData, NSError *error) {
+            if (!error) {
+                cell.profileImage.image = [UIImage imageWithData:imageData];
+            }
+    }];
+
     PFFileObject *postImage = post[@"image"];
     cell.postImageFile = postImage;
     [postImage getDataInBackgroundWithBlock:^(NSData *imageData, NSError *error){
@@ -84,7 +95,6 @@
     PFQuery *postQuery = [Post query];
     [postQuery orderByDescending:@"createdAt"];
     [postQuery includeKey:@"author"];
-    //[postQuery includeKey:@"caption"];
     postQuery.limit = 20;
     
     // fetch data asynchronously
@@ -95,7 +105,6 @@
             NSLog(@"%@", self.posts);
             [self.tableView reloadData];
             [self.refreshControl endRefreshing];
-            
         }
         else {
             // handle error
@@ -103,6 +112,11 @@
         }
     }];
 }
+- (void)didFinishLiking:(PostCell*)PostCell{
+    
+    
+}
+
 
 /*
 #pragma mark - Navigation

@@ -17,12 +17,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
-
     self.caption.delegate = self;
     self.caption.text = @"Write a caption...";
     self.caption.textColor = [UIColor lightGrayColor];
-    
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)caption
@@ -56,6 +53,20 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
+- (UIImage *)resizeImage:(UIImage *)image withSize:(CGSize)size {
+    UIImageView *resizeImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
+    
+    resizeImageView.contentMode = UIViewContentModeScaleAspectFill;
+    resizeImageView.image = image;
+    
+    UIGraphicsBeginImageContext(size);
+    [resizeImageView.layer renderInContext:UIGraphicsGetCurrentContext()];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return newImage;
+}
+
 - (IBAction)didTapShare:(id)sender {
     if(self.imageToPost == nil){
         UIAlertController *alert= [UIAlertController alertControllerWithTitle:@"Error!" message:@"An image must be selected to post." preferredStyle:UIAlertControllerStyleAlert];
@@ -80,6 +91,26 @@
     imagePickerVC.allowsEditing = YES;
     
     // The Xcode simulator does not support taking pictures, so let's first check that the camera is indeed supported on the device before trying to present it.
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
+        imagePickerVC.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    }
+    else {
+        NSLog(@"Photo library 🚫 available so we will use camera instead");
+        imagePickerVC.sourceType = UIImagePickerControllerSourceTypeCamera;
+    }
+
+    [self presentViewController:imagePickerVC animated:YES completion:nil];
+}
+
+- (IBAction)didTapCancel:(id)sender {
+    [self dismissViewControllerAnimated:true completion:nil];
+}
+
+- (IBAction)takePhoto:(id)sender {
+    UIImagePickerController *imagePickerVC = [UIImagePickerController new];
+    imagePickerVC.delegate = self;
+    imagePickerVC.allowsEditing = YES;
+
     if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
         imagePickerVC.sourceType = UIImagePickerControllerSourceTypeCamera;
     }
@@ -89,10 +120,6 @@
     }
 
     [self presentViewController:imagePickerVC animated:YES completion:nil];
-}
-
-- (IBAction)didTapCancel:(id)sender {
-    [self dismissViewControllerAnimated:true completion:nil];
 }
 
 /*

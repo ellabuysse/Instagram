@@ -11,6 +11,8 @@
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code
+    
+    self.profileImage.layer.cornerRadius = 25;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
@@ -18,5 +20,10 @@
 
     // Configure the view for the selected state
 }
+
+- (IBAction)didTapLike:(id)sender {
+    
+}
+
 
 @end
